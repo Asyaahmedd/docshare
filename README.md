@@ -3,36 +3,61 @@
 A lightweight collaborative document editor: create and edit rich-text documents, import files, and share them with other users.
 
 **Stack:** FastAPI + SQLAlchemy (SQLite locally, Postgres in production) and a single-page frontend using the Quill editor. No build step.
+# Docshare
+
+A small Google Docs-style editor I built for Ajaia's take-home assignment. You can write and format documents, import a file as a new document, and share a document with another user as an editor or a viewer.
+
+**Live app:** https://docshare-ashy.vercel.app
+(The first load after a quiet period can take a few seconds.)
+
+## Trying it
+
+There is no real login. Use the "Signed in as" dropdown to switch between three test users: **[User 1]**, **[User 2]** and **[User 3]**.
+
+A quick path through the app:
+
+1. As [User 1], click New document, type something, make some of it bold and add a heading and a list. Refresh the page; the document is still there.
+2. Click Share, choose [User 2] and "View only".
+3. Switch to [User 2]. The document is under "Shared with me" and can't be edited.
+4. Switch back, change [User 2] to "Can edit", and switch again. Now they can edit.
+5. Click Upload file and choose a .txt, .md or .docx file to turn it into a new document.
+
+## How it's built
+
+- **Backend:** FastAPI and SQLAlchemy. `app/main.py` has the routes and permission checks, `app/db.py` defines the three tables (users, documents, shares), and `app/importers.py` converts uploaded files to HTML.
+- **Frontend:** plain HTML, CSS and JavaScript in `app/static/`, with the Quill editor loaded from a CDN. No build step.
+- **Database:** SQLite locally, Neon Postgres in production.
+- **Tests:** `tests/test_api.py` (pytest).
+
+## Decisions worth knowing about
+
+- **Permissions are checked on the server.** Every document route goes through one function, `load()`, which works out whether the caller is the owner, an editor or a viewer. Someone with no access gets a 404, so they can't tell whether a document exists.
+- **Content is sanitized before saving.** Documents are HTML shared between users, so `clean()` strips everything except basic formatting tags. This stops a script saved in one user's document from running in another's browser.
+- **Login is mocked.** The browser sends the chosen username in a header. The brief allowed this, and I spent the time on documents, sharing and access rules instead. It's not secure and would be the first thing to replace.
+- **Uploads are limited to .txt, .md and .docx, up to 2 MB.** .docx import keeps text, headings and lists. Images, tables and inline bold/italic are dropped.
 
 ## Run locally
-```bash
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+```
+python -m venv .venv
+.venv\Scripts\activate        # Mac/Linux: source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
-Open http://127.0.0.1:8000. Data is stored in `docs.db` (SQLite) and created on first start.
-
-## Test accounts (mocked login)
-Pick a user in the "Signed in as" dropdown: **Alice Johnson**, **Bob Smith**, **Carol Lee**. There are no passwords; this is intentional to keep scope on the document features (see ARCHITECTURE.md).
-
-**To see sharing work:** as Alice, create or open a document → Share → pick Bob and "Can edit" or "View only". Switch to Bob: the document appears under "Shared with me". A view-only document can't be edited.
-
-## Features
-- Create, rename (edit the title), edit, autosave, reopen; the open document survives a refresh.
-- Formatting: bold, italic, underline, Heading 1/2, bulleted and numbered lists.
-- Upload `.txt`, `.md`, `.docx` (max 2 MB) → becomes a new editable document. Other types are rejected with a message. `.docx` import keeps text, headings and lists; images, tables and inline bold/italic are not imported.
-- Sharing: owner, can edit / view only roles, remove access, "My documents" vs "Shared with me".
-- Validation: title length, file type and size, HTML sanitization on save, access checks on every endpoint.
-
-## Tests
-```bash
-pytest
+python -m uvicorn app.main:app --reload
 ```
 
-## Deploy (Render + free Postgres)
-1. Push this folder to GitHub.
-2. Create a free Postgres database (Neon or Supabase) and copy its connection string.
-3. On Render, create a **Web Service** from the repo: Build command `pip install -r requirements.txt`, Start command `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
-4. Add the environment variable `DATABASE_URL` = your connection string. Tables and seed users are created on first start.
+Then open http://127.0.0.1:8000. The database file (`docs.db`) is created on first start. Run the tests with `python -m pytest`.
 
-Without `DATABASE_URL` the app uses SQLite, which is erased on Render's free tier when the service restarts. Use Postgres for the live link.
+## Deployment
+
+Deployed on Vercel with a Neon Postgres database, configured through the `DATABASE_URL` environment variable. I first tried Render, but it asked for a payment card even on its free plan, and the assignment says reviewers shouldn't have to pay for anything.
+
+## Known limits
+
+- If two people edit the same document at once, the last save wins. There is no real-time collaboration or conflict detection.
+- Anyone can pick any test user, since there's no real authentication.
+- Text alignment and indentation aren't kept, because the sanitizer only allows basic formatting tags.
+- Sharing is limited to the three seeded users.
+
+## With another 2-4 hours
+
+Real login, version history, Markdown/PDF export, a warning when someone else has saved changes first, and browser-level tests.
