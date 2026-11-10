@@ -1,17 +1,19 @@
-# Submission contents
+# Submission
 
-- `app/` – source code (FastAPI backend, importers, static frontend)
-- `tests/test_api.py` – automated tests
-- `README.md` – setup, run, test accounts, deployment
-- `ARCHITECTURE.md` – priorities, design, cuts
-- `AI_WORKFLOW.md` – AI usage note
+## What is in this folder
+- `app/`: source code (FastAPI backend, file importers, static frontend)
+- `tests/test_api.py`: automated tests
+- `README.md`: how to run it and try it
+- `ARCHITECTURE.md`: what I prioritised and cut
+- `AI_WORKFLOW.md`: how I used AI
 - `requirements.txt`
-- `VIDEO.txt` – walkthrough video link
+- `video_link.txt`: link to the walkthrough video
 
-**Live URL:** [paste Render URL]
-**Test users:** alice, bob, carol (select from the dropdown; no passwords)
+**Live app:** https://docshare-ashy.vercel.app
+**Repo:** https://github.com/Asyaahmedd/docshare
+**Test users:** [Asya Ahmed], [Narin Patel], [Salim Khan] (pick from the dropdown, no passwords)
 
 ## Status
-- **Working:** create/rename/edit/save/reopen, rich text, upload (.txt/.md/.docx), sharing (editor/viewer), owned vs shared lists, persistence, validation, tests.
-- **Incomplete / not built:** real auth, real-time collaboration, version history, export.
-- **Next with 2-4 more hours:** real login, version history, Markdown/PDF export, conflict detection on save, browser end-to-end tests.
+- **Working:** create, rename, edit, autosave and reopen documents; rich text; upload of .txt/.md/.docx; sharing as editor or viewer; owned vs shared lists; persistence; validation; tests.
+- **Not built:** real login, real-time collaboration, version history, export.
+- **With 2-4 more hours:** real login, version history, Markdown/PDF export, a warning when someone else saved first, and browser-level tests.
