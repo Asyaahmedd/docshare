@@ -1,24 +1,24 @@
 # Architecture note
 
 ## What I prioritized
-1. **A complete core loop** (create → edit → save → reopen → share) over breadth. Every requirement works end to end.
-2. **Access control on the server.** Every document endpoint goes through one `load()` function that checks owner/editor/viewer. Users without access get 404, so document IDs don't leak.
-3. **Safe shared content.** Documents are HTML shared between users, so content is sanitized with `nh3` (allow-list of formatting tags) before it's stored. Test covers this.
-4. **Zero-friction review.** No Node build, one command to run, seeded users, free hosting tiers.
+1. **The full loop working end to end:** create, edit, save, reopen, share. I preferred this to adding extra features.
+2. **Permissions on the server.** Every document route calls one function, `load()`, which decides whether the caller is the owner, an editor or a viewer. If you have no access you get a 404, so nobody can tell whether a document ID exists.
+3. **Safe shared content.** Documents are HTML that other users open, so `clean()` strips everything except basic formatting tags before saving. Otherwise a script saved by one user would run in another user's browser.
+4. **Easy for reviewers to run.** No build step, one command to start, seeded test users, and free hosting.
 
 ## Design
-- **Backend:** FastAPI, three tables: `users`, `documents` (HTML content), `shares` (document, user, role; unique per pair).
-- **Frontend:** one HTML page + vanilla JS + Quill (CDN). Autosave 0.8s after typing stops, with visible status.
-- **Storage:** HTML is what Quill produces and what I sanitize, so formatting round-trips without a conversion layer.
-- **Import:** `importers.py` converts txt/md/docx to HTML, then the same sanitizer runs.
+- **Backend:** FastAPI with three tables: `users`, `documents` (the HTML) and `shares` (document, user, role, one row per pair).
+- **Frontend:** one HTML page, plain JavaScript and the Quill editor from a CDN. It autosaves 0.8 seconds after you stop typing and shows the status.
+- **Storage:** I store the HTML that Quill produces after sanitising it, so formatting survives a reload without a conversion step.
+- **Uploads:** `importers.py` converts .txt, .md and .docx to HTML, and the same sanitiser runs on the result.
 
-## Deliberate cuts (and why)
-- **Real authentication:** mocked via a user dropdown (allowed by the brief). Next: sessions/OAuth.
-- **Real-time collaboration:** concurrent edits are last-write-wins. Next: Yjs/CRDT or at least version checks.
-- **Sharing by email/invite:** only seeded users can be picked.
-- **Version history, comments, export:** skipped to protect core quality.
+## What I cut and why
+- **Real login:** it's a user dropdown, which the brief allows. I chose to spend the time on sharing and access rules instead.
+- **Real-time collaboration:** if two people save at once, the last save wins.
+- **Inviting by email:** you can only share with the three seeded users.
+- **Version history, comments and export:** left out to keep the core solid.
 
-## Known limitations
-- Two people editing at once can overwrite each other.
-- Mobile layout works but the editor is best on desktop.
-- No browser-level automated tests; the API has pytest coverage.
+## Known limits
+- Simultaneous edits can overwrite each other.
+- The layout works on a phone, but the editor is best on desktop.
+- Only the API has automated tests. There are no browser-level tests.
