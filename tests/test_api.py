@@ -64,3 +64,16 @@ def test_upload(c):
 def test_rejects_empty_title(c):
     doc = c.post("/api/docs", json={"title": "A"}, headers=H("alice")).json()
     assert c.put(f"/api/docs/{doc['id']}", json={"title": "  "}, headers=H("alice")).status_code == 422
+
+def test_cannot_share_with_yourself(c):
+    doc = c.post("/api/docs", json={"title": "Solo"}, headers=H("alice")).json()
+    r = c.post(f"/api/docs/{doc['id']}/share", json={"username": "alice"}, headers=H("alice"))
+    assert r.status_code == 400
+
+
+def test_only_owner_can_delete(c):
+    doc = c.post("/api/docs", json={"title": "Mine"}, headers=H("alice")).json()
+    url = f"/api/docs/{doc['id']}"
+    c.post(url + "/share", json={"username": "bob", "role": "editor"}, headers=H("alice"))
+    assert c.delete(url, headers=H("bob")).status_code == 403
+    assert c.delete(url, headers=H("alice")).status_code == 204
