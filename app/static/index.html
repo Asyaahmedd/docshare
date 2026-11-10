@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docshare</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.snow.min.css">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <aside>
+    <h1 class="brand">Docshare</h1>
+    <label class="who">Signed in as
+      <select id="user"></select>
+    </label>
+    <div class="actions">
+      <button id="newBtn" class="primary">New document</button>
+      <button id="uploadBtn">Upload file</button>
+      <input type="file" id="file" accept=".txt,.md,.docx" hidden>
+    </div>
+    <p class="hint">Upload a .txt, .md or .docx file (max 2 MB) to turn it into an editable document.</p>
+    <h2>My documents</h2>
+    <ul id="owned" class="list"></ul>
+    <h2>Shared with me</h2>
+    <ul id="shared" class="list"></ul>
+  </aside>
+  <main>
+    <div id="banner" role="alert" hidden></div>
+    <div id="empty"><p>Select a document, create a new one, or upload a file to get started.</p></div>
+    <section id="editorWrap" hidden>
+      <header class="bar">
+        <input id="title" aria-label="Document title" maxlength="200">
+        <span id="badge" class="badge"></span>
+        <span id="status" role="status"></span>
+        <button id="shareBtn">Share</button>
+        <button id="delBtn" class="danger">Delete</button>
+      </header>
+      <div id="toolbar">
+        <select class="ql-header" aria-label="Text size">
+          <option value="1">Heading 1</option><option value="2">Heading 2</option><option selected>Normal</option>
+        </select>
+        <button class="ql-bold" aria-label="Bold"></button>
+        <button class="ql-italic" aria-label="Italic"></button>
+        <button class="ql-underline" aria-label="Underline"></button>
+        <button class="ql-list" value="ordered" aria-label="Numbered list"></button>
+        <button class="ql-list" value="bullet" aria-label="Bulleted list"></button>
+      </div>
+      <div id="editor"></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="shareDlg">
+  <form id="shareForm">
+    <h2>Share this document</h2>
+    <div class="row">
+      <select id="shareUser" aria-label="Person"></select>
+      <select id="shareRole" aria-label="Permission">
+        <option value="editor">Can edit</option><option value="viewer">View only</option>
+      </select>
+      <button class="primary">Share</button>
+    </div>
+    <h3>People with access</h3>
+    <ul id="shareList" class="list"></ul>
+    <button type="button" id="closeDlg">Done</button>
+  </form>
+</dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quill/1.3.7/quill.min.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
