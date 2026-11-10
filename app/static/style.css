@@ -53,3 +53,4 @@ dialog li { display: flex; justify-content: space-between; align-items: center; 
 button.link { border: 0; color: var(--bad); padding: 2px 6px; }
 #closeDlg { margin-top: 14px; }
 @media (max-width: 760px) { .app { grid-template-columns: 1fr; } aside { border-right: 0; border-bottom: 1px solid var(--line); } main { padding: 16px; } }
+#count { font-size: 13px; color: var(--muted); }

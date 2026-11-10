@@ -53,6 +53,7 @@ async function openDoc(id) {
     $('#empty').hidden = true; $('#editorWrap').hidden = false;
     $('#title').value = d.title; $('#title').disabled = d.access === 'viewer';
     quill.clipboard.dangerouslyPasteHTML(d.content, 'silent');
+    updateCount();
     quill.enable(d.access !== 'viewer');
     $('#badge').textContent = d.access === 'owner' ? 'Owner' : d.access === 'editor' ? 'Shared · can edit' : 'Shared · view only';
     $('#shareBtn').hidden = $('#delBtn').hidden = d.access !== 'owner';
@@ -74,8 +75,11 @@ async function save() {
     current.title = d.title; status('Saved'); refresh();
   } catch (e) { status('Not saved: ' + e.message, true); }
 }
-quill.on('text-change', (_d, _o, src) => { if (src === 'user' && current) schedule(); });
-$('#title').addEventListener('input', () => current && schedule());
+function updateCount() {
+  const words = quill.getText().trim().split(/\s+/).filter(Boolean).length;
+  $('#count').textContent = words + (words === 1 ? ' word' : ' words');
+}
+quill.on('text-change', (_d, _o, src) => { updateCount(); if (src === 'user' && current) schedule(); });$('#title').addEventListener('input', () => current && schedule());
 
 $('#newBtn').onclick = async () => {
   try { const d = await api('/docs', { method: 'POST', json: { title: 'Untitled document' } }); await refresh(); openDoc(d.id); }
